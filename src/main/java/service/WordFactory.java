@@ -1,4 +1,8 @@
-import controller.WordRulesController;
+package service;
+
+import org.postgresql.util.PSQLException;
+import org.springframework.dao.DataIntegrityViolationException;
+import service.WordRulesController;
 import domain.Word;
 import persistence.EntityManagerProvider;
 import persistence.WordDao;
@@ -8,6 +12,7 @@ import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
+
 
 public class WordFactory {
 
@@ -27,15 +32,16 @@ public class WordFactory {
         while (iterator.hasNext()) {
             String nextWord = iterator.next();
             Word word = new Word(nextWord, nextWord.length());
-                if (wordDao.findById(nextWord).getWord() != null ){
-                    System.out.println("Woord bestaat al");
-                    continue;
-                }
-                else {
+            try {
                     wordDao.insert(word);
-                    em.getTransaction().commit();
-                };
+
+            }
+            catch( NullPointerException e )
+            {
+                System.out.print(e.getMessage());
+            }
         }
+        em.getTransaction().commit();
         em.close();
     }
 }
